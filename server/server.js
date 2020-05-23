@@ -1,35 +1,36 @@
 const WebSocket = require('ws')
 const uuid = require('uuid');
+const commands = require('./modules/commands.js');
 
 const webSocketServer = new WebSocket.Server({ port: 8080 })
 
 let lobby = [];
 
-const commands = {
-    REGISTER: "REGISTER",
-    UNREGISTER: "UNREGISTER",
-    NEWPLAYER: "NEWPLAYER"
-}
-
-const registerPlayer = (webSocket) => {
+const registerPlayer = (payload, webSocket) => {
     console.log('registering player');
 
     let clientId = uuid.v1();
     response = {
-        "ClientId": clientId,
-        "Command": commands.REGISTER
+        "clientId": clientId,
+        "command": commands.REGISTER
     };
 
-    lobby.push({
-        clientId,
-        webSocket
-    });
+    if (payload) {
+        lobby.push({
+            clientId,
+            webSocket,
+            payload
+        });
+    }
 
     webSocket.send(JSON.stringify(response));
-    notifyOtherClients({
-        "ClientId": clientId,
-        "Command": commands.NEWPLAYER
+
+    notifyOtherClients(webSocket, {
+        "clientId": clientId,
+        "command": commands.UPDATE,
+        "payload": lobby.map(item => item.payload)
     });
+
     console.log('registering player - complete');
 }
 
@@ -39,9 +40,12 @@ const unregisterPlayer = (id) => {
 }
 
 const notifyOtherClients = (webSocket, message) => {
+   // console.log('sending message: ', message);
     webSocketServer.clients.forEach(function each(client) {
+
         if (client !== webSocket && client.readyState === WebSocket.OPEN) {
-            client.send(message);
+            //console.log('sending notification', JSON.stringify(message));
+            client.send(JSON.stringify(message));
         }
     });
 };
@@ -49,25 +53,46 @@ const notifyOtherClients = (webSocket, message) => {
 const parseMessage = (message, webSocket) => {
     message = JSON.parse(message);
 
-    switch (message.Command) {
+    switch (message.command) {
         case commands.REGISTER:
-            registerPlayer(webSocket);
+            registerPlayer(message.payload, webSocket);
             break;
         case commands.UNREGISTER:
             unregisterPlayer(message.ClientId);
+            break;
+        case commands.UPDATE:
+            updateGameState(message, webSocket);
             break;
         default:
             console.log(`Received message => ${message}`);
             break;
     }
+}
 
-    // webSocketServer.clients.forEach(function each(client) {
-    //     if (client.readyState === WebSocket.OPEN) {
-    //         client.send('message received: ' + message);
-    //     }
-    // });
+const updateGameState = ({ clientId, command, payload }, webSocket) => {
+    let playerDataIndex = lobby.findIndex(item => item.clientId === clientId);
+    // console.log("update", playerDataIndex, lobby);
+
+
+    if (playerDataIndex !== -1) {
+        // let gameData = JSON.parse(JSON.stringify(lobby));
+
+        lobby[playerDataIndex] = {
+            "clientId": lobby[playerDataIndex].clientId,
+            "webSocket": lobby[playerDataIndex].webSocket,
+            "payload": payload
+        };
+
+        //lobby = [...gameData];
+
+        notifyOtherClients(webSocket, {
+            command,
+            "payload": lobby.map(item => item.payload)
+        });
+    }
 }
 
 webSocketServer.on('connection', (webSocket) => {
+    console.log('new connection');
     webSocket.on('message', (message) => parseMessage(message, webSocket));
 })

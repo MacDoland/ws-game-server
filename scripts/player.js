@@ -9,6 +9,7 @@ class Player extends Observer {
         this.position = position;
         this.radius = 10;
         this.speed = 200;
+        this.color =  '#000000'.replace(/0/g,function(){return (~~(Math.random()*16)).toString(16);})
         this.input = {};
 
         this.notify = (input) => {
@@ -16,6 +17,16 @@ class Player extends Observer {
         }
 
         InputManager.subscribe(this);
+    }
+
+    get() {
+        let { name, position, color } = this;
+
+        return {
+            name,
+            position,
+            color
+        }
     }
 
     update(deltaTime) {
@@ -55,7 +66,7 @@ class Player extends Observer {
     draw(context) {
         context.beginPath();
         context.arc(this.position.x, this.position.y, this.radius, 0, 2 * Math.PI, false);
-        context.fillStyle = 'green';
+        context.fillStyle = this.color;
         context.fill();
         context.lineWidth = 2;
         context.strokeStyle = '#003300';
