@@ -1,0 +1,25 @@
+@import "./scss/reset";
+@import "./scss/settings";
+
+html,
+body,
+#root {
+  position: relative;
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: $primary-font;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  background-color: #fff;
+  background-image: linear-gradient(90deg, transparent 79px, #abced4 79px, #abced4 81px, transparent 81px),
+    linear-gradient(#eee 0.1em, transparent 0.1em);
+  background-size: 100% 1.2em;
+}
+
+p {
+  margin: 10px 0;
+}

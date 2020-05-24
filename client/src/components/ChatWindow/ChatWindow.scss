@@ -1,0 +1,12 @@
+@import "../../scss/settings";
+
+.chat-window {
+    &__message {
+        margin: 10px 0;
+
+        &__author {
+            color: $secondary-colour;
+            font-weight: bold;
+        }
+    }
+}

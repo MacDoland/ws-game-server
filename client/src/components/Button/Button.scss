@@ -1,0 +1,24 @@
+@import '../../scss/settings.scss';
+
+.button {
+    background: $primary-colour;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: $primary-font;
+    margin: 10px;
+    min-width: 100px;
+    padding: 10px;
+
+    &:disabled {
+        background: gray;
+    }
+
+    &:hover {
+        background: $secondary-colour;
+    }
+
+    &:disabled:hover {
+        background: gray;
+    }
+
+}

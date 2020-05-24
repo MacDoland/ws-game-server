@@ -1,11 +1,14 @@
 import React from 'react';
 import MainMenu from '../MainMenu';
+import Panel from '../Panel';
 import './Home.scss';
 
 const Home = () => {
     return (
         <section className="home">
-            <MainMenu />
+            <Panel>
+                <MainMenu />
+            </Panel>
         </section>
     )
 }
