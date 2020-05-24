@@ -1,5 +1,5 @@
 import { actions } from '../actions';
-import { createLobby } from './server-reducer.helpers'
+import { createLobby, joinLobby, sendMessage } from './server-reducer.helpers'
 
 export default (state, action) => {
 
@@ -7,9 +7,9 @@ export default (state, action) => {
         case actions.createLobby:
             return createLobby(state, action);
         case actions.joinLobby:
-            return { ...state }
+            return joinLobby(state, action);
         case actions.sendMessage:
-            return { ...state }
+            return sendMessage(state, action);
 
         default:
             return { ...state }

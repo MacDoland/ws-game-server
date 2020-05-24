@@ -1,12 +1,11 @@
 @import "../../scss/settings";
 
-.chat-window {
+.lobby-user-list {
     min-height: 400px;
-    overflow-y: auto;
-    &__message {
+    &__user {
         margin: 10px 0;
 
-        &__author {
+        &__name {
             color: $secondary-colour;
             font-weight: bold;
         }

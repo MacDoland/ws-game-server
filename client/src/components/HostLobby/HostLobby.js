@@ -3,7 +3,7 @@ import { useHistory } from "react-router-dom";
 
 import { ServerContext } from '../../context/server-context';
 import { createLobby } from '../../actions';
-
+import { userSelector } from '../../selectors';
 
 import Button from '../Button';
 import { Form, Field, TextInput } from '../Form';
@@ -14,7 +14,8 @@ import './HostLobby.scss';
 const HostLobby = () => {
     const history = useHistory();
     const [state, dispatch] = useContext(ServerContext);
-    const defaultState = { username: state.user.name.slice(), lobbyName: '' };
+    const currentUser = userSelector(state) || { name: '' };
+    const defaultState = { username: currentUser.name.slice(), lobbyName: '' };
     const [{ username, lobbyName }, setState] = useState(defaultState);
 
     const goBack = (event) => {
@@ -59,7 +60,7 @@ const HostLobby = () => {
                 </Field>
 
                 <Button onClick={goBack}>Back</Button>
-                <Button onClick={onCreateLobbyHandler}>Create</Button>
+                <Button onClick={onCreateLobbyHandler}  disabled={typeof(username) !== 'string' || username === ''}>Create</Button>
             </Form>
         </Panel>
     )

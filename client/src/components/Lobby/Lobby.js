@@ -1,8 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
+import { ServerContext } from '../../context/server-context';
+import { lobbySelector } from '../../selectors';
+import { sendMessage } from '../../actions';
 import { useHistory } from "react-router-dom";
+import { userSelector } from '../../selectors';
 import Button from '../Button';
 import { Form, Field, TextInput } from '../Form';
 import ChatWindow from '../ChatWindow';
+import LobbyUserList from '../LobbyUserList';
 import Panel from '../Panel';
 
 import './Lobby.scss';
@@ -10,64 +15,24 @@ import './Lobby.scss';
 const Lobby = () => {
 
     const history = useHistory();
-    const lobbyName = "Example Lobby 1";
-
-    const defaultState = {
-        currentMessage: '',
-        messages: [
-            {
-                author: 'Joe',
-                content: 'Hi this is an example of a chat message!',
-                createdDate: new Date()
-            },
-            {
-                author: 'George',
-                content: 'I have received your example message!',
-                createdDate: new Date()
-            },
-            {
-                author: 'Lucy',
-                content: 'I am also here in the channel!',
-                createdDate: new Date()
-            }
-        ]
-    }
-
-    let [{ currentMessage, messages }, setState] = useState(defaultState);
+    const [state, dispatch] = useContext(ServerContext);
+    const [currentMessage, setCurrentMessage] = useState('');
+    const currentUser = userSelector(state) || { name: '' };
 
 
-    useEffect(() => {
-        console.log('currentMessage: ', currentMessage);
-    }, [])
-
-    const sendMessage = (event) => {
+    const onSendMessage = (event) => {
         event.preventDefault();
 
-        if (isChatMessageValid()) {
-
-
-            let messagesCopy = [...messages.map(message => Object.assign({}, message))];
-
-            messagesCopy.push({
-                author: 'Unknown',
-                content: currentMessage.slice(),
-                createdDate: new Date()
-            });
-
-            setState(Object.assign({}, {
-                currentMessage: '',
-                messages: messagesCopy
-            }));
-        }
-
+        dispatch(sendMessage({
+            lobbyId: state.lobbyId.slice(),
+            author: currentUser.name.slice(),
+            content: currentMessage.slice(),
+            createdDate: new Date()
+        }))
     }
 
     const onChangeHandler = (event) => {
-        let value = event.target.value;
-        setState(Object.assign({}, {
-            currentMessage: value,
-            messages: [...messages.map(message => Object.assign({}, message))]
-        }));
+        setCurrentMessage(event.target.value);
     }
 
     const isChatMessageValid = () => {
@@ -79,18 +44,24 @@ const Lobby = () => {
         history.goBack();
     }
 
+    const { name, messages } = lobbySelector(state);
+
     return (
-        <Panel>
+        <Panel className="lobby">
             <Form>
+                <h2 className="h1">Lobby: <span className="lobby__name">{name}</span> </h2>
+                <div className="lobby__body">
+                    <Panel>
+                        <ChatWindow messages={messages} />
+                    </Panel>
 
-                <h2 className="h1">Lobby: {lobbyName} </h2>
-                <Panel>
-                    <ChatWindow messages={messages} />
-                </Panel>
-                <Field>
-                    <TextInput id="chat-message" name="chat-message" value={currentMessage} onChange={onChangeHandler}></TextInput><Button onClick={sendMessage} disabled={!isChatMessageValid()}>Send</Button>
+                    <Panel>
+                        <LobbyUserList users={state.users} />
+                    </Panel>
+                </div>
+                <Field className="lobby__chat-bar">
+                    <TextInput id="chat-message" name="chat-message" value={currentMessage} onChange={onChangeHandler}></TextInput><Button onClick={onSendMessage} disabled={!isChatMessageValid()}>Send</Button>
                 </Field>
-
 
                 <Button onClick={goBack}>Back</Button>
                 <Button>Start Game</Button>

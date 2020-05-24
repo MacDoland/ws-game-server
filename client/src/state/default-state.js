@@ -1,12 +1,14 @@
+import { v1 as uuidv1 } from 'uuid';
+
 export default {
-    user: {
-        name: ''
-    },
+    userId: '',
+    lobbyId: '',
     lobbies: [
         {
-            name: 'Joes Awesome Lobby',
-            id: '1',
+            name: 'Joes Lobby',
+            id: uuidv1(),
             currentMessage: '',
+            hostId: 'my-user-id',
             messages: [
                 {
                     author: 'Joe',
@@ -27,9 +29,15 @@ export default {
         },
         {
             name: 'New Lobby',
-            id: '2',
-            currentMessage: '',
+            id: uuidv1(),
+            hostId: 'my-user-id',
             messages: []
+        }
+    ],
+    users: [
+        {
+            id: 'my-user-id',
+            name: 'Joe McD'
         }
     ]
 };

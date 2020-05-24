@@ -1,0 +1,27 @@
+@import '../../scss/settings';
+
+.lobby {
+    &__name {
+        color: $secondary-colour;
+    }
+
+    &__body {
+        display: flex;
+        width: 100%;
+
+        .panel {
+            margin-bottom: 0;
+            width: 20%;
+            &:first-child {
+                width: 100%;
+                margin-right: 40px;
+            }
+        }
+    }
+
+    &__chat-bar{
+        width: calc(80% - 15px);
+    }
+
+
+}

@@ -1,4 +1,7 @@
-import React from 'react';
+import React, { useState, useContext } from 'react';
+import { ServerContext } from '../../context/server-context';
+import { joinLobby } from '../../actions';
+import { userSelector } from '../../selectors';
 import { useHistory } from "react-router-dom";
 import Button from '../Button';
 import { Form, Field, TextInput, RadioInput } from '../Form';
@@ -8,22 +11,44 @@ import './JoinLobby.scss';
 
 const JoinLobby = () => {
     const history = useHistory();
-    const lobbies = [
-        {
-            name: 'Example Lobby 1'
-        },
-        {
-            name: 'Example Lobby 2'
-        },
-        {
-            name: 'Example Lobby 3'
-        }
-    ]
+    const [state, dispatch] = useContext(ServerContext);
+    const currentUser = userSelector(state) || { name: '' };
+    const defaultState = { username: currentUser.name.slice(), lobbyId: state.lobbyId.slice() };
+    const [{ username, lobbyId }, setState] = useState(defaultState);
+
 
     const goBack = (event) => {
         event.preventDefault();
         history.goBack();
     }
+
+    const onLobbySelectionHandler = (event) => {
+        const lobbyId = event.target.value;
+
+        setState(Object.assign({}, {
+            username,
+            lobbyId
+        }))
+    }
+
+    const onUsernameChangeHandler = (event) => {
+        setState(Object.assign({}, {
+            username: event.target.value,
+            lobbyId
+        }))
+    }
+
+    const onJoinLobby = (event) => {
+        event.preventDefault();
+
+        dispatch(joinLobby({
+            lobbyId,
+            username
+        }));
+
+        history.push('/lobby');
+    }
+
 
     return (
         <Panel>
@@ -34,7 +59,7 @@ const JoinLobby = () => {
                     <h3 className="h2">Select a Lobby</h3>
                     <Field isColumn={true}>
                         {
-                            lobbies.map((lobby, index) => <RadioInput key={'lobbies-' + index} id={'lobbies-' + index} label={lobby.name} name={'lobby'} />)
+                            state.lobbies.map((lobby, index) => <RadioInput key={'lobbies-' + index} id={'lobbies-' + index} label={lobby.name} value={lobby.id} name={'lobby'} onChange={onLobbySelectionHandler} checked={lobbyId === lobby.id} />)
                         }
                     </Field>
                 </Panel>
@@ -42,11 +67,11 @@ const JoinLobby = () => {
                 <Panel>
                     <h3 className="h2">Your Details</h3>
                     <Field>
-                        <TextInput label={'Your Name'} id={'your-name'} name={'your-name'} />
+                        <TextInput label={'Your Name'} id={'your-name'} name={'your-name'} value={username} onChange={onUsernameChangeHandler} />
                     </Field>
                 </Panel>
                 <Button onClick={goBack}>Back</Button>
-                <Button>Join</Button>
+                <Button onClick={onJoinLobby} disabled={typeof(username) !== 'string' || username === ''}>Join</Button>
             </Form>
         </Panel>
     )

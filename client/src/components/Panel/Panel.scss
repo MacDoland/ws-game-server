@@ -2,7 +2,9 @@
     background: rgba(128, 128, 128, 0.25 );
     border: 1px solid #333;
     border-radius: 3px;
+    box-sizing: border-box;
     margin: 20px 0;
     padding: 20px;
     text-align: left;
+    width: 100%;
 }
