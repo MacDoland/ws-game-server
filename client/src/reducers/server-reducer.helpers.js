@@ -10,29 +10,6 @@ const cloneState = (state) => {
     })
 }
 
-const updateUser = (state, action) => {
-    const { username } = action.payload;
-
-    if (typeof (state.userId) !== 'string' || state.userId === '') {
-        const userId = uuidv1();
-        state.users.push({
-            id: userId,
-            name: username
-        });
-
-        state.userId = userId;
-    }
-    else {
-        let index = state.users.findIndex(user => user.id === state.userId);
-
-        if (index >= 0) {
-            state.users[index].name = username;
-        }
-    }
-
-    return state;
-}
-
 const newConnection = (state, action) => {
     const { connection } = action.payload;
     let newState = cloneState(state);
@@ -49,29 +26,9 @@ const connectionActive = (state, action) => {
     return newState;
 }
 
-
-const createLobby = (state, action) => {
-    const { id, name, participants, messages, hostId  } = action.payload;
-    let newState = cloneState(state);
-
-    newState = updateUser(newState, action);
-    newState.lobbyId = id;
-    newState.lobbies.push({
-        id,
-        name,
-        participants,
-        messages,
-        hostId,
-    });
-
-    return newState;
-};
-
 const getLobbies = (state, action) => {
     const { lobbies  } = action.payload;
     let newState = cloneState(state);
-
-    newState = updateUser(newState, action);
     newState.lobbies= [...lobbies];
 
     return newState;
@@ -81,8 +38,6 @@ const joinLobby = (state, action) => {
     const { lobbyId } = action.payload;
 
     let newState = cloneState(state);
-
-    newState = updateUser(newState, action);
     newState.lobbyId = lobbyId;
 
     return newState;
@@ -108,4 +63,27 @@ const sendMessage = (state, action) => {
     }
 }
 
-export { newConnection, connectionActive, createLobby, getLobbies, joinLobby, sendMessage };
+const updateUser = (state, action) => {
+    const {id, name} = action.payload;
+
+    let newState = cloneState(state);
+    let index = newState.users.findIndex(user => user.id === id);
+
+    if(index === -1) {
+        newState.userId = id;
+        newState.users.push({
+            id,
+            name
+        });
+    }
+    else{
+        newState.users[index] = {
+            id, 
+            name
+        };
+    }
+
+    return newState;
+}
+
+export { newConnection, connectionActive, getLobbies, joinLobby, sendMessage, updateUser };

@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { ServerContext } from '../../context/server-context';
-import { joinLobby } from '../../actions';
+import {  updateUser } from '../../actions';
 import { userSelector } from '../../selectors';
 import { useHistory } from "react-router-dom";
 import Button from '../Button';
@@ -8,7 +8,7 @@ import { Form, Field, TextInput, RadioInput } from '../Form';
 import Panel from '../Panel';
 
 import './JoinLobby.scss';
-import { getLobbies } from '../../scripts/network-service';
+import { getLobbies, joinLobby } from '../../scripts/network-service';
 
 const JoinLobby = () => {
     const history = useHistory();
@@ -46,11 +46,16 @@ const JoinLobby = () => {
     const onJoinLobby = (event) => {
         event.preventDefault();
 
-        dispatch(joinLobby({
-            lobbyId,
-            username
+        dispatch(updateUser({ 
+            id: state.userId,
+            name: username
         }));
 
+        joinLobby(state.webSocketConnection, {
+            lobbyId,
+            userId: state.userId
+        });
+        
         history.push('/lobby');
     }
 

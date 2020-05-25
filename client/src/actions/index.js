@@ -4,7 +4,9 @@ const actions = {
     createLobby: 'CREATE_LOBBY',
     getLobbies: 'GET_LOBBIES',
     joinLobby: 'JOIN_LOBBY',
-    sendMessage: 'SEND_MESSAGE'
+    sendChatMessage: 'SEND_CHAT_MESSAGE',
+    lobbiesUpdated: 'LOBBIES_UPDATED',
+    updateUser: 'UPDATE_USER'
 }
 
 Object.freeze(actions);
@@ -20,3 +22,5 @@ const actionCreator = (type, payload) => {
  export const getLobbies = payload => actionCreator(actions.getLobbies, payload);
  export const joinLobby = payload => actionCreator(actions.joinLobby, payload);
  export const sendMessage = payload => actionCreator(actions.sendMessage, payload);
+ export const sendChatMessage = payload => actionCreator(actions.sendChatMessage, payload);
+ export const updateUser = payload => actionCreator(actions.updateUser, payload);

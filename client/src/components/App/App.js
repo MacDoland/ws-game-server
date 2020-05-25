@@ -4,9 +4,9 @@ import {
   Switch,
   Route
 } from "react-router-dom";
-
+import { v1 as uuidv1 } from 'uuid';
 import { ServerContext } from '../../context/server-context';
-import { newConnection, connectionActive } from '../../actions';
+import { newConnection, connectionActive, updateUser } from '../../actions';
 
 import Home from '../Home';
 import HostLobby from '../HostLobby';
@@ -21,6 +21,19 @@ function App() {
   const [state, dispatch] = useContext(ServerContext);
 
   useEffect(() => {
+
+    //Generate an ID for current user
+    //TODO: sessions?
+    let userId = localStorage.getItem('game-server-user-id');
+
+    if(!userId){
+      userId = uuidv1();
+      localStorage.setItem('game-server-user-id', userId);
+    }
+
+    dispatch(updateUser({
+      id: userId
+    }));
 
     let connection = connect('ws://localhost:8080');
 

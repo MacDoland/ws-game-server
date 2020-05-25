@@ -67,7 +67,7 @@ const createLobby = (payload, webSocket) => {
         id: lobbyId,
         name: lobbyName,
         participants: [
-            webSocket.id
+            webSocket.clientId
         ],
         messages: []
     }
@@ -81,6 +81,62 @@ const createLobby = (payload, webSocket) => {
         "payload": lobby
     }));
 };
+
+const addChatMessage = (payload) => {
+    const { lobbyId, author, createdDate, content } = payload;
+
+    const lobbiesClone = [...lobbies.map(lobby => Object.assign({}, lobby))];
+    const lobbyArrayIndex = lobbiesClone.findIndex(lobby => lobby.id === lobbyId);
+
+    if (lobbyArrayIndex === -1) {
+        //TODO: Error Handling
+        return;
+    }
+
+    lobbiesClone[lobbyArrayIndex].messages.push({
+        author,
+        content,
+        createdDate
+    });
+
+    lobbies = lobbiesClone;
+
+    broadcast({
+        "type": commands.getLobbies,
+        "payload": { lobbies }
+    });
+}
+
+const joinLobby = (payload, webSocket) => {
+    const { lobbyId, userId } = payload;
+
+    const lobbiesClone = [...lobbies.map(lobby => Object.assign({}, lobby))];
+    const lobbyArrayIndex = lobbiesClone.findIndex(lobby => lobby.id === lobbyId);
+
+    if (lobbyArrayIndex === -1) {
+        //TODO: Error Handling
+        return;
+    }
+
+    //Remove user from all lobbies
+    lobbiesClone.map(lobby => {
+        return {
+            ...lobby,
+            participants: lobby.participants.filter((participant) => {
+                participant.id !== userId
+            })
+        }
+    });
+
+    lobbiesClone[lobbyArrayIndex].participants.push(userId);
+
+    lobbies = lobbiesClone;
+
+    webSocket.send(JSON.stringify({
+        "type": commands.getLobbies,
+        "payload": { lobbies }
+    }));
+}
 
 const parseMessage = (message, webSocket) => {
 
@@ -107,6 +163,12 @@ const parseMessage = (message, webSocket) => {
                 "type": commands.getLobbies,
                 "payload": { lobbies }
             }))
+            break;
+        case commands.sendChatMessage:
+            addChatMessage(message.payload, webSocket);
+            break;
+        case commands.joinLobby:
+            joinLobby(message.payload, webSocket);
             break;
         default:
             console.log(`Received message => ${message}`);

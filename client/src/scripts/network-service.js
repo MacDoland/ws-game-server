@@ -2,7 +2,9 @@ import { serverActions, createLobbyAction } from './server-actions.js';
 import {
     actions,
     createLobby as createLobbyClient,
-    getLobbies as getLobbiesClient
+    getLobbies as getLobbiesClient,
+    sendChatMessage as sendChatMessageClient,
+    joinLobby as joinLobbyClient
 } from '../actions';
 
 export const connect = (url) => {
@@ -43,3 +45,16 @@ export const getLobbies = (connection) => {
         connection.send(JSON.stringify({ type: actions.getLobbies }));
     }
 };
+
+export const sendChatMessage = (connection, payload) => {
+    if (connection) {
+        connection.send(JSON.stringify(sendChatMessageClient(payload)));
+    }
+};
+
+//TODO: refactor as these are mostly the same
+export const joinLobby = (connection, payload) => {
+    if(connection) {
+        connection.send(JSON.stringify(joinLobbyClient(payload)));
+    }
+}

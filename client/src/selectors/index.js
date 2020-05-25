@@ -23,3 +23,7 @@ export const userSelector = (state) => {
 
     return user;
 }
+
+export const currentLobbySelector = (state) => {
+    return state.lobbies.filter(lobby => lobby.participants.filter(participant => participant === state.userId).length > 0);
+}

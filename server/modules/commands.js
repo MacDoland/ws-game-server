@@ -5,7 +5,10 @@ const commands = {
     update: "UPDATE",
     createLobby: "CREATE_LOBBY",
     lobbyCreated: "LOBBY_CREATED",
-    getLobbies: "GET_LOBBIES"
+    getLobbies: "GET_LOBBIES",
+    sendChatMessage: 'SEND_CHAT_MESSAGE',
+    lobbiesUpdated: 'LOBBIES_UPDATED',
+    joinLobby: 'JOIN_LOBBY'
 }
 
 Object.freeze(commands);
