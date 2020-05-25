@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { ServerContext } from '../../context/server-context';
 import { joinLobby } from '../../actions';
 import { userSelector } from '../../selectors';
@@ -8,14 +8,19 @@ import { Form, Field, TextInput, RadioInput } from '../Form';
 import Panel from '../Panel';
 
 import './JoinLobby.scss';
+import { getLobbies } from '../../scripts/network-service';
 
 const JoinLobby = () => {
     const history = useHistory();
     const [state, dispatch] = useContext(ServerContext);
     const currentUser = userSelector(state) || { name: '' };
-    const defaultState = { username: currentUser.name.slice(), lobbyId: state.lobbyId.slice() };
+    const defaultState = { username: currentUser.name, lobbyId: state.lobbyId };
     const [{ username, lobbyId }, setState] = useState(defaultState);
 
+
+    useEffect(() => {
+        getLobbies(state.webSocketConnection);
+    }, [state.webSocketConnectionAlive])
 
     const goBack = (event) => {
         event.preventDefault();

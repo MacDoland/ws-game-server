@@ -67,6 +67,16 @@ const createLobby = (state, action) => {
     return newState;
 };
 
+const getLobbies = (state, action) => {
+    const { lobbies  } = action.payload;
+    let newState = cloneState(state);
+
+    newState = updateUser(newState, action);
+    newState.lobbies= [...lobbies];
+
+    return newState;
+}
+
 const joinLobby = (state, action) => {
     const { lobbyId } = action.payload;
 
@@ -98,4 +108,4 @@ const sendMessage = (state, action) => {
     }
 }
 
-export { newConnection, connectionActive, createLobby, joinLobby, sendMessage };
+export { newConnection, connectionActive, createLobby, getLobbies, joinLobby, sendMessage };

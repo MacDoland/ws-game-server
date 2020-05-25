@@ -88,6 +88,7 @@ const parseMessage = (message, webSocket) => {
 
     message = JSON.parse(message);
 
+    console.log(`action: ${message.type}, payload: ${JSON.stringify(message.payload)} `);
     switch (message.type) {
         case commands.register:
             //   registerPlayer(message.payload, webSocket);
@@ -99,8 +100,13 @@ const parseMessage = (message, webSocket) => {
             //    updateGameState(message, webSocket);
             break;
         case commands.createLobby:
-            console.log(`Client Action: ${message.type}, payload: ${JSON.stringify(message.payload)} `);
             createLobby(message.payload, webSocket);
+            break;
+        case commands.getLobbies:
+            webSocket.send(JSON.stringify({
+                "type": commands.getLobbies,
+                "payload": { lobbies }
+            }))
             break;
         default:
             console.log(`Received message => ${message}`);

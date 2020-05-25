@@ -1,5 +1,5 @@
 import { actions } from '../actions';
-import { newConnection, connectionActive, createLobby, joinLobby, sendMessage } from './server-reducer.helpers'
+import { newConnection, connectionActive, createLobby, getLobbies, joinLobby, sendMessage } from './server-reducer.helpers'
 
 export default (state, action) => {
 
@@ -10,6 +10,8 @@ export default (state, action) => {
             return connectionActive(state, action);
         case actions.createLobby:
             return createLobby(state, action);
+        case actions.getLobbies:
+            return getLobbies(state, action);
         case actions.joinLobby:
             return joinLobby(state, action);
         case actions.sendMessage:

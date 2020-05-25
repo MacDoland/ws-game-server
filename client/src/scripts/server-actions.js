@@ -1,6 +1,7 @@
 const serverActions = {
     createLobby: 'CREATE_LOBBY',
-    lobbyCreated: 'LOBBY_CREATED'
+    lobbyCreated: 'LOBBY_CREATED',
+    getLobbies: 'GET_LOBBIES'
 };
 
 Object.freeze(serverActions);
