@@ -14,16 +14,16 @@ const updateUser = (state, action) => {
     const { username } = action.payload;
 
     if (typeof (state.userId) !== 'string' || state.userId === '') {
-        const usedId = uuidv1();
+        const userId = uuidv1();
         state.users.push({
-            id: usedId,
+            id: userId,
             name: username
         });
 
-        state.usedId = usedId;
+        state.userId = userId;
     }
     else {
-        let index = state.users.findIndex(user => user.id === state.usedId);
+        let index = state.users.findIndex(user => user.id === state.userId);
 
         if (index >= 0) {
             state.users[index].name = username;
@@ -33,26 +33,41 @@ const updateUser = (state, action) => {
     return state;
 }
 
-export const createLobby = (state, action) => {
-    const { lobbyName } = action.payload;
-    const lobbyId = uuidv1();
+const newConnection = (state, action) => {
+    const { connection } = action.payload;
+    let newState = cloneState(state);
+    newState.webSocketConnection = connection;
+
+    return newState;
+}
+
+const connectionActive = (state, action) => {
+    const { webSocketConnectionAlive } = action.payload;
+    let newState = cloneState(state);
+    newState.webSocketConnectionAlive = webSocketConnectionAlive;
+
+    return newState;
+}
+
+
+const createLobby = (state, action) => {
+    const { id, name, participants, messages, hostId  } = action.payload;
     let newState = cloneState(state);
 
-
     newState = updateUser(newState, action);
-    newState.lobbyId = lobbyId;
-
+    newState.lobbyId = id;
     newState.lobbies.push({
-        id: lobbyId,
-        name: lobbyName,
-        messages: [],
-        hostId: newState.usedId
+        id,
+        name,
+        participants,
+        messages,
+        hostId,
     });
 
     return newState;
 };
 
-export const joinLobby = (state, action) => {
+const joinLobby = (state, action) => {
     const { lobbyId } = action.payload;
 
     let newState = cloneState(state);
@@ -63,7 +78,7 @@ export const joinLobby = (state, action) => {
     return newState;
 }
 
-export const sendMessage = (state, action) => {
+const sendMessage = (state, action) => {
     const { lobbyId, author, content, createdDate } = action.payload;
 
     let newState = cloneState(state);
@@ -82,3 +97,5 @@ export const sendMessage = (state, action) => {
         return state;
     }
 }
+
+export { newConnection, connectionActive, createLobby, joinLobby, sendMessage };

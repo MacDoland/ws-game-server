@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffe, useEffect } from 'react';
 import { ServerContext } from '../../context/server-context';
 import { lobbySelector } from '../../selectors';
 import { sendMessage } from '../../actions';
@@ -19,6 +19,12 @@ const Lobby = () => {
     const [currentMessage, setCurrentMessage] = useState('');
     const currentUser = userSelector(state) || { name: '' };
 
+    //If the lobbyId is missing, we don't know which lobby to show so redirect to home
+    useEffect(() => {
+        if(typeof(state.lobbyId) !== 'string' || state.lobbyId === ''){
+            history.replace('/');
+        }
+    }, state.lobbyId)
 
     const onSendMessage = (event) => {
         event.preventDefault();
@@ -28,7 +34,7 @@ const Lobby = () => {
             author: currentUser.name.slice(),
             content: currentMessage.slice(),
             createdDate: new Date()
-        }))
+        }));
     }
 
     const onChangeHandler = (event) => {

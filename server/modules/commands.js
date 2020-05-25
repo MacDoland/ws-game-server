@@ -1,8 +1,10 @@
 const commands = {
-    REGISTER: "REGISTER",
-    UNREGISTER: "UNREGISTER",
-    NEWPLAYER: "NEWPLAYER",
-    UPDATE: "UPDATE"
+    register: "REGISTER",
+    unregister: "UNREGISTER",
+    newPlayer: "NEWPLAYER",
+    update: "UPDATE",
+    createLobby: "CREATE_LOBBY",
+    lobbyCreated: "LOBBY_CREATED"
 }
 
 Object.freeze(commands);

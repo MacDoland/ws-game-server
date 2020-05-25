@@ -14,7 +14,7 @@ export const userSelector = (state) => {
     let user = { name: '' };
 
     if (typeof (state.userId) === 'string' || state.userId !== '') {
-        let index = state.users.findIndex(user => user.id === state.usedId);
+        let index = state.users.findIndex(user => user.id === state.userId);
 
         if (index >= 0) {
            user = state.users[index];
