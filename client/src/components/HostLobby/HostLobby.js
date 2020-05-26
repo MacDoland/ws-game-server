@@ -25,20 +25,12 @@ const HostLobby = () => {
             createLobby(state.webSocketConnection, {
                 lobbyId: uuidv1(),
                 lobbyName
-            })
-        }
-    }, [shouldSubmitLobby])
-
-    useEffect(() => {
-        //When lobbyId updates move to Lobby View
-        if (state.lobbyId !== lobbyId) {
-            setState({
-                lobbyId
             });
+
+            //Assume creating the lobby will be okay and move on to the lobby view
             history.push('/lobby')
         }
-    }, [state.lobbyId])
-
+    }, [shouldSubmitLobby])
 
     const goBack = (event) => {
         event.preventDefault();
@@ -77,15 +69,6 @@ const HostLobby = () => {
                 lobbyCreated: true
             });
         }
-
-        //TODO: SHOW ERROR MESSAGE
-
-        // dispatch(createLobby({
-        //     username,
-        //     lobbyName
-        // }));
-
-        // history.push('/lobby')
     }
 
     return (

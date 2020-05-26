@@ -42,7 +42,7 @@ const Lobby = () => {
             messages: []
         }
 
-    }, [state]);
+    }, [state.lobbies]);
 
 
 

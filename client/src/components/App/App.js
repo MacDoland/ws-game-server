@@ -7,6 +7,7 @@ import {
 import { v1 as uuidv1 } from 'uuid';
 import { ServerContext } from '../../context/server-context';
 import { newConnection, connectionActive, updateUser } from '../../actions';
+import { useHistory } from "react-router-dom";
 
 import Home from '../Home';
 import HostLobby from '../HostLobby';
@@ -19,6 +20,7 @@ import { connect, processMessage } from '../../scripts/network-service';
 
 function App() {
   const [state, dispatch] = useContext(ServerContext);
+  const history = useHistory();
 
   useEffect(() => {
 
@@ -31,11 +33,13 @@ function App() {
       localStorage.setItem('game-server-user-id', userId);
     }
 
+    console.log('userId', userId);
+
     dispatch(updateUser({
       id: userId
     }));
 
-    let connection = connect('ws://localhost:8080');
+    let connection = connect(`ws://localhost:8080?userId=${userId}`);
 
     dispatch(newConnection({
       connection
@@ -48,7 +52,7 @@ function App() {
     };
 
     connection.onmessage = (event) => {
-      processMessage(event, dispatch);
+      processMessage(event, dispatch, history);
     };
   }, [])
 

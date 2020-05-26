@@ -11,7 +11,7 @@ export const connect = (url) => {
     return new WebSocket(url);
 };
 
-export const processMessage = (event, dispatch) => {
+export const processMessage = (event, dispatch, history) => {
 
     if (typeof (event) === 'undefined' || typeof (event.data) !== 'string') {
         return;
@@ -23,7 +23,9 @@ export const processMessage = (event, dispatch) => {
     switch (type) {
         case serverActions.lobbyCreated:
             console.log('Server Communication: Lobby Created', payload);
-            dispatch(createLobbyClient(payload));
+            //Don't like this, can we move history to somewhere else?
+            //history.push('/lobby');
+            console.log('history', history);
             break;
         case serverActions.getLobbies:
             console.log('Server Communication: GetLobbies', payload);
