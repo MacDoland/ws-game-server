@@ -1,12 +1,15 @@
+import '../filters/distinct.filter';
+import { distinct } from '../filters/distinct.filter';
+
 export const currentParticipantsSelector = (state) => {
   let participants = [];
   let currentLobby = currentLobbySelector(state);
 
-    console.log(currentLobby);
+ 
 
   if (currentLobby && currentLobby.participants) {
     console.log('currentLobby.participants', currentLobby.participants);
-    participants = currentLobby.participants.map((participant) => {
+    participants = currentLobby.participants.filter(distinct).map((participant) => {
       return state.users.find((user) => user.id === participant);
     });
 
@@ -15,7 +18,6 @@ export const currentParticipantsSelector = (state) => {
     );
   }
 
-  console.log('participants', participants)
 
   return participants;
 };

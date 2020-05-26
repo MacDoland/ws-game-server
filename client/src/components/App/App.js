@@ -26,11 +26,11 @@ function App() {
 
     //Generate an ID for current user
     //TODO: sessions?
-    let userId = localStorage.getItem('game-server-user-id');
+    let userId = sessionStorage.getItem('game-server-user-id');
 
     if(!userId){
       userId = uuidv1();
-      localStorage.setItem('game-server-user-id', userId);
+      sessionStorage.setItem('game-server-user-id', userId);
     }
 
     console.log('userId', userId);

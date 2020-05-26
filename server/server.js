@@ -9,38 +9,10 @@ const webSocketServer = new WebSocket.Server({ port });
 let lobby = [];
 let lobbies = [];
 
-const registerPlayer = (payload, webSocket) => {
-  console.log("registering player");
-
-  let clientId = uuid.v1();
-  response = {
-    clientId: clientId,
-    command: commands.register,
-  };
-
-  if (payload) {
-    lobby.push({
-      clientId,
-      webSocket,
-      payload,
-    });
-  }
-
-  webSocket.send(JSON.stringify(response));
-
-  notifyOtherClients(webSocket, {
-    clientId: clientId,
-    command: commands.update,
-    payload: lobby.map((item) => item.payload),
-  });
-
-  console.log("registering player - complete");
-};
 
 const removeUserFromAllLobbies = (userId) => {
     const lobbiesClone = [...lobbies.map((lobby) => Object.assign({}, lobby))];
 }
-
 
 const broadcast = (message) =>
   webSocketServer.clients.forEach((client) =>
@@ -71,8 +43,6 @@ const createLobby = (payload, webSocket) => {
     participants: [webSocket.clientId],
     messages: [],
   };
-
-  console.log(JSON.stringify(lobby));
 
   lobbies.push(lobby);
 
