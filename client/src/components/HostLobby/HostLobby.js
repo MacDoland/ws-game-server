@@ -42,7 +42,7 @@ const HostLobby = () => {
 
     const goBack = (event) => {
         event.preventDefault();
-        history.goBack();
+        history.replace('/');
     }
 
     const lobbyOnChange = (event) => {

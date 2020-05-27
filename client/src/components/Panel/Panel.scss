@@ -7,4 +7,12 @@
     padding: 20px;
     text-align: left;
     width: 100%;
+
+    &--no-padding {
+        padding: 0;
+
+        .h2 {
+            margin: 20px;
+        }
+    }
 }

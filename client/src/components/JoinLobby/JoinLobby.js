@@ -1,10 +1,10 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { ServerContext } from '../../context/server-context';
-import {  updateUser } from '../../actions';
+import { updateUser } from '../../actions';
 import { userSelector } from '../../selectors';
 import { useHistory } from "react-router-dom";
 import Button from '../Button';
-import { Form, Field, TextInput, RadioInput } from '../Form';
+import { Form, Field, TextInput } from '../Form';
 import Panel from '../Panel';
 
 import './JoinLobby.scss';
@@ -24,12 +24,10 @@ const JoinLobby = () => {
 
     const goBack = (event) => {
         event.preventDefault();
-        history.goBack();
+        history.replace('/');
     }
 
-    const onLobbySelectionHandler = (event) => {
-        const lobbyId = event.target.value;
-
+    const onLobbySelectionHandler = (lobbyId) => {
         setState(Object.assign({}, {
             username,
             lobbyId
@@ -46,7 +44,7 @@ const JoinLobby = () => {
     const onJoinLobby = (event) => {
         event.preventDefault();
 
-        dispatch(updateUser({ 
+        dispatch(updateUser({
             id: state.userId,
             name: username
         }));
@@ -55,21 +53,43 @@ const JoinLobby = () => {
             lobbyId,
             userId: state.userId
         });
-        
+
         history.push('/lobby');
+    }
+
+    const displayLobbies = (lobbies) => {
+        if (lobbies.length > 0) {
+            return state.lobbies.map((lobby, index) =>
+                <Button className={lobby.id === lobbyId ? 'button--selected' : ''} key={'lobbies-' + index} onClick={(event) => {
+                    event.preventDefault();
+                    onLobbySelectionHandler(lobby.id);
+                }}>
+                    <div>{lobby.name}</div>
+                    <div>{lobby.participants.length}/20</div>
+                    <div>open</div>
+                </Button>
+            );
+        }
+        else {
+            return <p>There are currently no Lobbies to join... <Button onClick={() => { history.push('/host'); }}> Host a Lobby? </Button></p>
+        }
     }
 
 
     return (
-        <Panel>
+        <Panel className="join-lobby">
             <Form>
-
                 <h2 className="h1">Join Lobby</h2>
-                <Panel>
+                <Panel className="panel--no-padding join-lobby__select-lobby">
                     <h3 className="h2">Select a Lobby</h3>
-                    <Field isColumn={true}>
+                    <header className="join-lobby__select-lobby__header">
+                        <div>Name</div>
+                        <div>Players</div>
+                        <div>Status</div>
+                    </header>
+                    <Field className="field--no-margin field--no-padding" isColumn={true}>
                         {
-                            state.lobbies.map((lobby, index) => <RadioInput key={'lobbies-' + index} id={'lobbies-' + index} label={lobby.name} value={lobby.id} name={'lobby'} onChange={onLobbySelectionHandler} checked={lobbyId === lobby.id} />)
+                            displayLobbies(state.lobbies || [])
                         }
                     </Field>
                 </Panel>
@@ -81,7 +101,7 @@ const JoinLobby = () => {
                     </Field>
                 </Panel>
                 <Button onClick={goBack}>Back</Button>
-                <Button onClick={onJoinLobby} disabled={typeof(username) !== 'string' || username === ''}>Join</Button>
+                <Button onClick={onJoinLobby} disabled={typeof (username) !== 'string' || username === ''}>Join</Button>
             </Form>
         </Panel>
     )

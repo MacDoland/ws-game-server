@@ -1,0 +1,115 @@
+@import "../../scss/settings";
+
+.join-lobby {
+    display: block;
+
+    .radio-input {
+        display: block;
+        margin: 0;
+        width: 100%;
+
+        label {
+            background: rgba(116, 116, 116, 1);
+            box-sizing: border-box;
+            display: block;
+            padding: 10px 40px;
+            position: relative;
+            width: 100%;
+
+            &:hover {
+                font-weight: bold;
+                &::before {
+                    content: ">";
+                    position: absolute;
+                    left: 20px;
+                }
+            }
+        }
+
+        &:nth-child(odd) {
+            label {
+                background: rgba(116, 116, 116, 0.6);
+            }
+        }
+
+        input[type="radio"] {
+            position: absolute;
+            visibility: hidden;
+
+            &:checked + label {
+                cursor: default;
+                font-weight: bold;
+                background: $secondary-colour;
+
+                &::before {
+                    content: ">";
+                    position: absolute;
+                    left: 20px;
+                }
+            }
+        }
+    }
+
+    &__select-lobby {
+        &__header {
+            display: flex;
+            font-size: 16px;
+            font-weight: bold;
+            justify-content: space-evenly;
+            margin: 0;
+            padding: 10px 40px;
+
+            div {
+                padding: 0 20px;
+                text-align: left;
+                width: 100%;
+            }
+        }
+        .button {
+            background: rgba(116, 116, 116, 1);
+            border: none;
+            border-radius: 0;
+            display: flex;
+            font-size: 16px;
+            justify-content: space-evenly;
+            margin: 0;
+            padding: 10px 40px;
+            position: relative;
+
+            div {
+                padding: 0 20px;
+                text-align: left;
+                width: 100%;
+            }
+
+            &:hover,
+            &--selected {
+                font-weight: bold;
+                &::before {
+                    content: ">";
+                    position: absolute;
+                    left: 20px;
+                }
+            }
+
+            &:nth-child(odd) {
+                background: rgba(116, 116, 116, 0.6);
+            }
+
+            &--selected {
+                background: $secondary-colour;
+
+                &:nth-child(odd) {
+                    background: $secondary-colour;
+                }
+            }
+
+            &:focus {
+                background: $primary-colour;
+                border: 1px solid #333;
+                border-radius: 0;
+                outline: none;
+            }
+        }
+    }
+}
