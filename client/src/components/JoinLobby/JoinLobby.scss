@@ -85,11 +85,6 @@
             &:hover,
             &--selected {
                 font-weight: bold;
-                &::before {
-                    content: ">";
-                    position: absolute;
-                    left: 20px;
-                }
             }
 
             &:nth-child(odd) {
@@ -105,10 +100,14 @@
             }
 
             &:focus {
-                background: $primary-colour;
                 border: 1px solid #333;
                 border-radius: 0;
                 outline: none;
+                &::before {
+                    content: ">";
+                    position: absolute;
+                    left: 20px;
+                }   
             }
         }
     }
