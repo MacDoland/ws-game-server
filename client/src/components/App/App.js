@@ -7,6 +7,7 @@ import {
 import { v1 as uuidv1 } from 'uuid';
 import { ServerContext } from '../../context/server-context';
 import { newConnection, connectionActive, updateUser } from '../../actions';
+import { useHistory } from "react-router-dom";
 
 import Home from '../Home';
 import HostLobby from '../HostLobby';
@@ -19,23 +20,26 @@ import { connect, processMessage } from '../../scripts/network-service';
 
 function App() {
   const [state, dispatch] = useContext(ServerContext);
+  const history = useHistory();
 
   useEffect(() => {
 
     //Generate an ID for current user
     //TODO: sessions?
-    let userId = localStorage.getItem('game-server-user-id');
+    let userId = sessionStorage.getItem('game-server-user-id');
 
     if(!userId){
       userId = uuidv1();
-      localStorage.setItem('game-server-user-id', userId);
+      sessionStorage.setItem('game-server-user-id', userId);
     }
+
+    console.log('userId', userId);
 
     dispatch(updateUser({
       id: userId
     }));
 
-    let connection = connect('ws://localhost:8080');
+    let connection = connect(`ws://localhost:8080?userId=${userId}`);
 
     dispatch(newConnection({
       connection
@@ -48,7 +52,7 @@ function App() {
     };
 
     connection.onmessage = (event) => {
-      processMessage(event, dispatch);
+      processMessage(event, dispatch, history);
     };
   }, [])
 

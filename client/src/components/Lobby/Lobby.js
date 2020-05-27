@@ -1,8 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { ServerContext } from '../../context/server-context';
-import { lobbySelector } from '../../selectors';
 import { useHistory } from "react-router-dom";
-import { userSelector, currentLobbySelector } from '../../selectors';
+import { userSelector, currentLobbySelector, currentParticipantsSelector } from '../../selectors';
 import Button from '../Button';
 import { Form, Field, TextInput } from '../Form';
 import ChatWindow from '../ChatWindow';
@@ -16,11 +15,11 @@ const Lobby = () => {
 
     const history = useHistory();
     const [state] = useContext(ServerContext);
-    const [currentMessage, setCurrentMessage] = useState('');
+    const [{ currentMessage, participants }, setState] = useState({ currentMessage: '', participants: []});
     const currentUser = userSelector(state) || { name: '' };
-    let selectedLobbies = currentLobbySelector(state);
+    let selectedLobby = currentLobbySelector(state);
 
-    let lobby = selectedLobbies.length > 0 ? selectedLobbies[0] : {
+    let lobby = selectedLobby || {
         name: '',
         messages: []
     }
@@ -29,23 +28,18 @@ const Lobby = () => {
         getLobbies(state.webSocketConnection);
     }, [state.webSocketConnectionAlive])
 
-    //If the lobbyId is missing, we don't know which lobby to show so redirect to home
     useEffect(() => {
-        // if (currentLobbySelector(state).length === 0) {
-        //     history.replace('/');
-        // }
+        selectedLobby = currentLobbySelector(state);
 
-        let selectedLobbies = currentLobbySelector(state);
+        setState({
+            participants: currentParticipantsSelector(state)
+        });
 
-        let lobby = selectedLobbies.length > 0 ? selectedLobbies[0] : {
+        lobby = selectedLobby || {
             name: '',
             messages: []
         }
-
-    }, [state]);
-
-
-
+    }, [state.lobbies]);
 
     const onSendMessage = (event) => {
         event.preventDefault();
@@ -59,7 +53,9 @@ const Lobby = () => {
     }
 
     const onChangeHandler = (event) => {
-        setCurrentMessage(event.target.value);
+        setState({
+            currentMessage: event.target.value
+        });
     }
 
     const isChatMessageValid = () => {
@@ -83,7 +79,7 @@ const Lobby = () => {
                     </Panel>
 
                     <Panel>
-                        <LobbyUserList users={state.users} />
+                        <LobbyUserList users={participants} />
                     </Panel>
                 </div>
                 <Field className="lobby__chat-bar">
