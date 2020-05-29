@@ -113,13 +113,28 @@ const joinLobby = (payload, webSocket) => {
 
   lobbies = lobbiesClone;
 
-  webSocket.send(
-    JSON.stringify({
-      type: commands.getLobbies,
-      payload: { lobbies },
-    })
-  );
+  broadcast({
+    type: commands.getLobbies,
+    payload: { lobbies: lobbiesClone },
+  });
 };
+
+const leaveLobbies = (payload) => {
+  const { userId } = payload;
+
+  let lobbiesClone = [...lobbies.map((lobby) => Object.assign({}, lobby))];
+  lobbiesClone = lobbiesClone.map((lobby) => {
+    lobby.participants = lobby.participants.filter(user => user !== userId);
+    return lobby;
+  });
+
+  lobbies = lobbiesClone;
+
+  broadcast({
+    type: commands.getLobbies,
+    payload: { lobbies: lobbiesClone },
+  });
+}
 
 const parseMessage = (message, webSocket) => {
   //  console.log("message", JSON.stringify(message));
@@ -156,6 +171,9 @@ const parseMessage = (message, webSocket) => {
     case commands.joinLobby:
       joinLobby(message.payload, webSocket);
       break;
+      case commands.leaveLobby:
+        leaveLobbies(message.payload, webSocket);
+        break;
     default:
       console.log(`Received message => ${message}`);
       break;

@@ -6,6 +6,7 @@ import { useHistory } from "react-router-dom";
 import Button from '../Button';
 import { Form, Field, TextInput } from '../Form';
 import Panel from '../Panel';
+import config from '../../config/app-config';
 
 import './JoinLobby.scss';
 import { getLobbies, joinLobby } from '../../scripts/network-service';
@@ -14,32 +15,41 @@ const JoinLobby = () => {
     const history = useHistory();
     const [state, dispatch] = useContext(ServerContext);
     const currentUser = userSelector(state) || { name: '' };
-    const defaultState = { username: currentUser.name, lobbyId: state.lobbyId };
+    const defaultState = { username: currentUser.name || '', lobbyId: state.lobbyId };
     const [{ username, lobbyId }, setState] = useState(defaultState);
 
-
+    //Get the current lobbies once a service connection has been made
     useEffect(() => {
-        getLobbies(state.webSocketConnection);
-    }, [state.webSocketConnectionAlive])
+        if (state.webSocketConnectionAlive) {
+            getLobbies(state.webSocketConnection);
+        }
+    }, [state.webSocketConnection, state.webSocketConnectionAlive])
 
-    const goBack = (event) => {
+    //Stash username in session storage once set
+    useEffect(() => {
+        if (username && username !== '') {
+            sessionStorage.setItem(config.usernameSessionKey, username);
+        }
+    }, [username]);
+
+    const goBackToHome = (event) => {
         event.preventDefault();
         history.replace('/');
-    }
+    };
 
     const onLobbySelectionHandler = (lobbyId) => {
-        setState(Object.assign({}, {
+        setState({
             username,
             lobbyId
-        }))
-    }
+        });
+    };
 
     const onUsernameChangeHandler = (event) => {
-        setState(Object.assign({}, {
-            username: event.target.value,
-            lobbyId
-        }))
-    }
+        setState({
+            lobbyId,
+            username: event.target.value
+        });
+    };
 
     const onJoinLobby = (event) => {
         event.preventDefault();
@@ -55,7 +65,7 @@ const JoinLobby = () => {
         });
 
         history.push('/lobby');
-    }
+    };
 
     const displayLobbies = (lobbies) => {
         if (lobbies.length > 0) {
@@ -73,7 +83,7 @@ const JoinLobby = () => {
         else {
             return <p>There are currently no Lobbies to join... <Button onClick={() => { history.push('/host'); }}> Host a Lobby? </Button></p>
         }
-    }
+    };
 
 
     return (
@@ -100,11 +110,11 @@ const JoinLobby = () => {
                         <TextInput label={'Your Name'} id={'your-name'} name={'your-name'} value={username} onChange={onUsernameChangeHandler} />
                     </Field>
                 </Panel>
-                <Button onClick={goBack}>Back</Button>
+                <Button onClick={goBackToHome}>Back</Button>
                 <Button onClick={onJoinLobby} disabled={typeof (username) !== 'string' || username === ''}>Join</Button>
             </Form>
         </Panel>
     )
-}
+};
 
 export default JoinLobby;

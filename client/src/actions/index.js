@@ -6,7 +6,8 @@ const actions = {
     joinLobby: 'JOIN_LOBBY',
     sendChatMessage: 'SEND_CHAT_MESSAGE',
     lobbiesUpdated: 'LOBBIES_UPDATED',
-    updateUser: 'UPDATE_USER'
+    updateUser: 'UPDATE_USER',
+    leaveLobby: 'LEAVE_LOBBY'
 }
 
 Object.freeze(actions);
@@ -24,3 +25,4 @@ const actionCreator = (type, payload) => {
  export const sendMessage = payload => actionCreator(actions.sendMessage, payload);
  export const sendChatMessage = payload => actionCreator(actions.sendChatMessage, payload);
  export const updateUser = payload => actionCreator(actions.updateUser, payload);
+ export const leaveLobby = payload => actionCreator(actions.leaveLobby, payload);

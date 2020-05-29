@@ -1,5 +1,3 @@
-import { v1 as uuidv1 } from 'uuid';
-
 const cloneState = (state) => {
     return Object.assign({}, state, {
         lobbies: [...state.lobbies.map(lobby => Object.assign({}, {
@@ -77,6 +75,7 @@ const updateUser = (state, action) => {
         });
     }
     else{
+        newState.userId = id;
         newState.users[index] = {
             id, 
             name

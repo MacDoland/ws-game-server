@@ -1,7 +1,6 @@
 import { serverActions, createLobbyAction } from './server-actions.js';
 import {
     actions,
-    createLobby as createLobbyClient,
     getLobbies as getLobbiesClient,
     sendChatMessage as sendChatMessageClient,
     joinLobby as joinLobbyClient
@@ -43,10 +42,16 @@ export const createLobby = (connection, payload) => {
 }
 
 export const getLobbies = (connection) => {
-    if (connection) {
+    if (connection && connection.readyState === 1) {
         connection.send(JSON.stringify({ type: actions.getLobbies }));
     }
 };
+
+export const leaveLobby = (connection, payload) => {
+    if (connection && connection.readyState === 1) {
+        connection.send(JSON.stringify({ type: actions.leaveLobby, payload }));
+    }
+}
 
 export const sendChatMessage = (connection, payload) => {
     if (connection) {

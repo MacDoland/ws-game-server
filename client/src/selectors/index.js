@@ -5,8 +5,6 @@ export const currentParticipantsSelector = (state) => {
   let participants = [];
   let currentLobby = currentLobbySelector(state);
 
- 
-
   if (currentLobby && currentLobby.participants) {
     console.log('currentLobby.participants', currentLobby.participants);
     participants = currentLobby.participants.filter(distinct).map((participant) => {
@@ -17,7 +15,6 @@ export const currentParticipantsSelector = (state) => {
       (participant) => typeof participant !== "undefined"
     );
   }
-
 
   return participants;
 };

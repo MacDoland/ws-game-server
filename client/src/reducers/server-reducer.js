@@ -1,8 +1,7 @@
 import { actions } from '../actions';
-import { newConnection, connectionActive, createLobby, getLobbies, joinLobby, sendMessage, updateUser } from './server-reducer.helpers'
+import { newConnection, connectionActive, getLobbies, joinLobby, sendMessage, updateUser } from './server-reducer.helpers'
 
 export default (state, action) => {
-
     switch (action.type) {
         case actions.newConnection:
             return newConnection(state, action);

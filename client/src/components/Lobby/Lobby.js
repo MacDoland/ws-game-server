@@ -7,7 +7,7 @@ import { Form, Field, TextInput } from '../Form';
 import ChatWindow from '../ChatWindow';
 import LobbyUserList from '../LobbyUserList';
 import Panel from '../Panel';
-import { sendChatMessage, getLobbies } from '../../scripts/network-service';
+import { sendChatMessage, getLobbies, leaveLobby } from '../../scripts/network-service';
 
 import './Lobby.scss';
 
@@ -15,8 +15,12 @@ const Lobby = () => {
 
     const history = useHistory();
     const [state] = useContext(ServerContext);
-    const [{ currentMessage, participants }, setState] = useState({ currentMessage: '', participants: []});
-    const currentUser = userSelector(state) || { name: '' };
+    const initialState = { currentMessage: '' };
+    const [{ currentMessage }, setState] = useState(initialState);
+    const currentUser = userSelector(state);
+
+    console.log('currentUser', currentUser);
+
     let selectedLobby = currentLobbySelector(state);
 
     let lobby = selectedLobby || {
@@ -25,21 +29,10 @@ const Lobby = () => {
     }
 
     useEffect(() => {
-        getLobbies(state.webSocketConnection);
-    }, [state.webSocketConnectionAlive])
-
-    useEffect(() => {
-        selectedLobby = currentLobbySelector(state);
-
-        setState({
-            participants: currentParticipantsSelector(state)
-        });
-
-        lobby = selectedLobby || {
-            name: '',
-            messages: []
+        if (state.webSocketConnectionAlive) {
+            getLobbies(state.webSocketConnection);
         }
-    }, [state.lobbies]);
+    }, [state.webSocketConnection, state.webSocketConnectionAlive])
 
     const onSendMessage = (event) => {
         event.preventDefault();
@@ -53,9 +46,9 @@ const Lobby = () => {
     }
 
     const onChangeHandler = (event) => {
-        setState({
+        setState(Object.assign({}, {
             currentMessage: event.target.value
-        });
+        }));
     }
 
     const isChatMessageValid = () => {
@@ -64,6 +57,11 @@ const Lobby = () => {
 
     const goBack = (event) => {
         event.preventDefault();
+
+        leaveLobby(state.webSocketConnection, {
+            userId: state.userId
+        });
+
         history.goBack();
     }
 
@@ -79,11 +77,12 @@ const Lobby = () => {
                     </Panel>
 
                     <Panel>
-                        <LobbyUserList users={participants} />
+                        <LobbyUserList users={currentParticipantsSelector(state)} />
                     </Panel>
                 </div>
                 <Field className="lobby__chat-bar">
-                    <TextInput id="chat-message" name="chat-message" value={currentMessage} onChange={onChangeHandler}></TextInput><Button onClick={onSendMessage} disabled={!isChatMessageValid()}>Send</Button>
+                    <TextInput id="chat-message" name="chat-message" value={currentMessage} onChange={onChangeHandler}></TextInput>
+                    <Button onClick={onSendMessage} disabled={!isChatMessageValid()}>Send</Button>
                 </Field>
 
                 <Button onClick={goBack}>Back</Button>

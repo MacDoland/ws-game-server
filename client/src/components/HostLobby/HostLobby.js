@@ -4,6 +4,7 @@ import { v1 as uuidv1 } from 'uuid';
 
 import { ServerContext } from '../../context/server-context';
 import { userSelector } from '../../selectors';
+import config from '../../config/app-config';
 
 import Button from '../Button';
 import { Form, Field, TextInput } from '../Form';
@@ -15,13 +16,13 @@ import './HostLobby.scss';
 
 const HostLobby = () => {
     const history = useHistory();
-    const [state, dispatch] = useContext(ServerContext);
+    const [state] = useContext(ServerContext);
     const currentUser = userSelector(state) || { name: '' };
-    const defaultState = { username: currentUser.name || '', lobbyName: '', lobbyCreated: false , lobbyId: state.lobbyId };
-    const [{ username, lobbyName, lobbyCreated: shouldSubmitLobby, lobbyId }, setState] = useState(defaultState);
+    const defaultState = { username: currentUser.name || '', lobbyName: '', lobbyCreated: false, lobbyId: state.lobbyId };
+    const [{ username, lobbyName, lobbyCreated: shouldSubmitLobby }, setState] = useState(defaultState);
 
     useEffect(() => {
-        if (shouldSubmitLobby) {
+        if (state.webSocketConnectionAlive && shouldSubmitLobby) {
             createLobby(state.webSocketConnection, {
                 lobbyId: uuidv1(),
                 lobbyName
@@ -30,7 +31,14 @@ const HostLobby = () => {
             //Assume creating the lobby will be okay and move on to the lobby view
             history.push('/lobby')
         }
-    }, [shouldSubmitLobby])
+    }, [history, lobbyName, state.webSocketConnection, state.webSocketConnectionAlive, shouldSubmitLobby])
+
+    //Stash username in session storage once set
+    useEffect(() => {
+        if (username && username !== '') {
+            sessionStorage.setItem(config.usernameSessionKey, username);
+        }
+    }, [username])
 
     const goBack = (event) => {
         event.preventDefault();
