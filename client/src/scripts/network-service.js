@@ -1,4 +1,4 @@
-import { serverActions, createLobbyAction } from './server-actions.js';
+import { serverActions, createLobbyAction, createPingAction } from './server-actions.js';
 import {
     actions,
     getLobbies as getLobbiesClient,
@@ -29,6 +29,12 @@ export const processMessage = (event, dispatch, history) => {
         case serverActions.getLobbies:
             console.log('Server Communication: GetLobbies', payload);
             dispatch(getLobbiesClient(payload));
+            break;
+        case serverActions.ping:
+            console.log('received ping', Date.now());
+            dispatch(createPingAction({
+                lastPingTime: Date.now()
+            }));
             break;
         default:
             console.log('Server Communication: Unknown Message', type);
@@ -61,7 +67,13 @@ export const sendChatMessage = (connection, payload) => {
 
 //TODO: refactor as these are mostly the same
 export const joinLobby = (connection, payload) => {
-    if(connection) {
+    if (connection && connection.readyState === 1) {
         connection.send(JSON.stringify(joinLobbyClient(payload)));
+    }
+}
+
+export const ping = (connection) => {
+    if (connection && connection.readyState === 1) {
+        connection.send(JSON.stringify(createPingAction()));
     }
 }

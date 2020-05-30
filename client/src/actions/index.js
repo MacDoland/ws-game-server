@@ -7,7 +7,8 @@ const actions = {
     sendChatMessage: 'SEND_CHAT_MESSAGE',
     lobbiesUpdated: 'LOBBIES_UPDATED',
     updateUser: 'UPDATE_USER',
-    leaveLobby: 'LEAVE_LOBBY'
+    leaveLobby: 'LEAVE_LOBBY',
+    ping: 'PING'
 }
 
 Object.freeze(actions);

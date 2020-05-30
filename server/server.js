@@ -39,16 +39,13 @@ const parseMessage = (message, webSocket) => {
       state = removeUserFromAllLobbies(state, message.payload.userId);
       broadcastLobbies(webSocketServer, state.lobbies);
       break;
+    case commands.pong:
+      webSocket.isAlive = true;
+      break;
     default:
       console.log(`Received message => ${message}`);
       break;
   }
-};
-
-const noop = () => { };
-
-const heartbeat = () => {
-  this.isAlive = true;
 };
 
 const interval = setInterval(function ping() {
@@ -58,7 +55,9 @@ const interval = setInterval(function ping() {
     }
 
     webSocket.isAlive = false;
-    webSocket.ping(noop);
+    webSocket.send(JSON.stringify({
+      type: 'PING'
+    }));
   });
 }, 30000);
 
@@ -72,7 +71,6 @@ webSocketServer.on("connection", (webSocket, request) => {
   webSocket.isAlive = true;
   webSocket.clientId = query.userId || uuid.v1();
   webSocket.on("message", (message) => parseMessage(message, webSocket));
-  webSocket.on("pong", heartbeat);
 });
 
 console.log("Server listening on port:", port);

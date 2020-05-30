@@ -81,4 +81,13 @@ const updateUser = (state, action) => {
     return newState;
 }
 
-export { cloneState, newConnection, connectionActive, getLobbies, joinLobby, sendMessage, updateUser };
+const ping = (state, action) => {
+    const { lastPingTime } = action.payload;
+
+    let newState = cloneState(state);
+    newState.lastPingTime = lastPingTime;
+
+    return newState;
+}
+
+export { cloneState, newConnection, connectionActive, getLobbies, joinLobby, ping, sendMessage, updateUser };

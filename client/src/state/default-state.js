@@ -1,8 +1,9 @@
 export default {
-    webSocketConnection: null,
-    webSocketConnectionAlive: false,
     userId: '',
     lobbyId: '',
     lobbies: [],
-    users: []
+    users: [],
+    webSocketConnection: null,
+    webSocketConnectionAlive: false,
+    lastPingTime: Date.now()
 };

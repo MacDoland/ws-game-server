@@ -1,5 +1,5 @@
 import { actions } from '../actions';
-import { newConnection, connectionActive, getLobbies, joinLobby, sendMessage, updateUser } from './server-reducer.helpers'
+import { newConnection, connectionActive, getLobbies, joinLobby, ping, sendMessage, updateUser } from './server-reducer.helpers'
 
 export default (state, action) => {
     switch (action.type) {
@@ -15,6 +15,8 @@ export default (state, action) => {
             return sendMessage(state, action);
         case actions.updateUser:
             return updateUser(state, action);
+        case actions.ping:
+            return ping(state, action);
         default:
             return { ...state }
     }

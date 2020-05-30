@@ -9,7 +9,8 @@ const commands = {
     sendChatMessage: 'SEND_CHAT_MESSAGE',
     lobbiesUpdated: 'LOBBIES_UPDATED',
     joinLobby: 'JOIN_LOBBY',
-    leaveLobby: 'LEAVE_LOBBY'
+    leaveLobby: 'LEAVE_LOBBY',
+    pong: 'PONG'
 }
 
 Object.freeze(commands);
