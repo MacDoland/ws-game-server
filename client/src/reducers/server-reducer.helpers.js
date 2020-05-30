@@ -1,11 +1,7 @@
+import cloneDeep from 'lodash/cloneDeep';
+
 const cloneState = (state) => {
-    return Object.assign({}, state, {
-        lobbies: [...state.lobbies.map(lobby => Object.assign({}, {
-            ...lobby,
-            messages: [...lobby.messages.map(message => Object.assign({}, message))]
-        }))],
-        users: [...state.users.map(user => Object.assign({}, user))]
-    })
+    return cloneDeep(state);
 }
 
 const newConnection = (state, action) => {
@@ -85,4 +81,4 @@ const updateUser = (state, action) => {
     return newState;
 }
 
-export { newConnection, connectionActive, getLobbies, joinLobby, sendMessage, updateUser };
+export { cloneState, newConnection, connectionActive, getLobbies, joinLobby, sendMessage, updateUser };

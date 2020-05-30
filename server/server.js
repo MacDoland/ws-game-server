@@ -3,184 +3,49 @@ const uuid = require("uuid");
 const commands = require("./modules/commands.js");
 const url = require("url");
 
+const { addChatMessage, broadcastLobbies, createLobby, joinLobby, removeUserFromAllLobbies, send } = require("./functions/server-functions");
+
 const port = process.env.PORT || 8080;
 const webSocketServer = new WebSocket.Server({ port });
-
-let lobby = [];
-let lobbies = [];
-
-
-const removeUserFromAllLobbies = (userId) => {
-    const lobbiesClone = [...lobbies.map((lobby) => Object.assign({}, lobby))];
-}
-
-const broadcast = (message) =>
-  webSocketServer.clients.forEach((client) =>
-    client.send(JSON.stringify(message))
-  );
-
-const notifyOtherClients = (webSocket, message) => {
-  webSocketServer.clients.forEach(function each(client) {
-    if (client !== webSocket && client.readyState === WebSocket.OPEN) {
-      client.send(JSON.stringify(message));
-    }
-  });
-};
-
-const createLobby = (payload, webSocket) => {
-  console.log("payload", JSON.stringify(payload));
-  const { lobbyId, lobbyName } = payload;
-
-  if (lobbies.findIndex((lobby) => lobby.id === lobbyId) !== -1) {
-    //TODO: SEND ERROR - LOBBY ALREADY EXISTS
-    return;
-  }
-
-  const lobby = {
-    hostId: webSocket.clientId,
-    id: lobbyId,
-    name: lobbyName,
-    participants: [webSocket.clientId],
-    messages: [],
-  };
-
-  lobbies.push(lobby);
-
-  webSocket.send(
-    JSON.stringify({
-      type: commands.lobbyCreated,
-      payload: lobby,
-    })
-  );
-
-  broadcast({
-    type: commands.getLobbies,
-    payload: { lobbies },
-  });
-};
-
-const addChatMessage = (payload) => {
-  const { lobbyId, author, createdDate, content } = payload;
-
-  const lobbiesClone = [...lobbies.map((lobby) => Object.assign({}, lobby))];
-  const lobbyArrayIndex = lobbiesClone.findIndex(
-    (lobby) => lobby.id === lobbyId
-  );
-
-  if (lobbyArrayIndex === -1) {
-    //TODO: Error Handling
-    return;
-  }
-
-  lobbiesClone[lobbyArrayIndex].messages.push({
-    author,
-    content,
-    createdDate,
-  });
-
-  lobbies = lobbiesClone;
-
-  broadcast({
-    type: commands.getLobbies,
-    payload: { lobbies },
-  });
-};
-
-const joinLobby = (payload, webSocket) => {
-  const { lobbyId, userId } = payload;
-
-  const lobbiesClone = [...lobbies.map((lobby) => Object.assign({}, lobby))];
-  const lobbyArrayIndex = lobbiesClone.findIndex(
-    (lobby) => lobby.id === lobbyId
-  );
-
-  if (lobbyArrayIndex === -1) {
-    //TODO: Error Handling
-    return;
-  }
-
-  //Remove user from all lobbies
-  lobbiesClone.map((lobby) => {
-    return {
-      ...lobby,
-      participants: lobby.participants.filter((participant) => {
-        participant.id !== userId;
-      }),
-    };
-  });
-
-  lobbiesClone[lobbyArrayIndex].participants.push(userId);
-
-  lobbies = lobbiesClone;
-
-  broadcast({
-    type: commands.getLobbies,
-    payload: { lobbies: lobbiesClone },
-  });
-};
-
-const leaveLobbies = (payload) => {
-  const { userId } = payload;
-
-  let lobbiesClone = [...lobbies.map((lobby) => Object.assign({}, lobby))];
-  lobbiesClone = lobbiesClone.map((lobby) => {
-    lobby.participants = lobby.participants.filter(user => user !== userId);
-    return lobby;
-  });
-
-  lobbies = lobbiesClone;
-
-  broadcast({
-    type: commands.getLobbies,
-    payload: { lobbies: lobbiesClone },
-  });
-}
+let state = { lobbies: [] }
 
 const parseMessage = (message, webSocket) => {
-  //  console.log("message", JSON.stringify(message));
-
   message = JSON.parse(message);
 
-  console.log(
-    `action: ${message.type}, payload: ${JSON.stringify(message.payload)} `
-  );
+  console.log(`Received message: action: ${message.type}, payload: ${JSON.stringify(message.payload)} `);
   switch (message.type) {
-    case commands.register:
-      //   registerPlayer(message.payload, webSocket);
-      break;
-    case commands.unregister:
-      //    unregisterPlayer(message.ClientId);
-      break;
-    case commands.update:
-      //    updateGameState(message, webSocket);
-      break;
     case commands.createLobby:
-      createLobby(message.payload, webSocket);
+      state = createLobby(state, message.payload.lobbyId, message.payload.lobbyName, message.payload.userId);
+      console.log('lobbies', state.lobbies);
+      broadcastLobbies(webSocketServer, state.lobbies);
       break;
     case commands.getLobbies:
-      webSocket.send(
-        JSON.stringify({
+      send(webSocket,
+        {
           type: commands.getLobbies,
-          payload: { lobbies },
-        })
+          payload: { lobbies: state.lobbies },
+        }
       );
       break;
     case commands.sendChatMessage:
-      addChatMessage(message.payload, webSocket);
+      state = addChatMessage(message.payload, webSocket);
+      broadcastLobbies(webSocketServer, state.lobbies);
       break;
     case commands.joinLobby:
-      joinLobby(message.payload, webSocket);
+      state = joinLobby(state, message.payload.lobbyId, message.payload.lobbyId);
+      broadcastLobbies(webSocketServer, state.lobbies);
       break;
-      case commands.leaveLobby:
-        leaveLobbies(message.payload, webSocket);
-        break;
+    case commands.leaveLobby:
+      state = removeUserFromAllLobbies(state, message.payload.userId);
+      broadcastLobbies(webSocketServer, state.lobbies);
+      break;
     default:
       console.log(`Received message => ${message}`);
       break;
   }
 };
 
-const noop = () => {};
+const noop = () => { };
 
 const heartbeat = () => {
   this.isAlive = true;
