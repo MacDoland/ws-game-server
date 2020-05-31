@@ -1,4 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
+import { ConnectionContext } from '../../context/connection-context';
 import { ServerContext } from '../../context/server-context';
 import { updateUser } from '../../actions';
 import { userSelector } from '../../selectors';
@@ -13,6 +14,7 @@ import { getLobbies, joinLobby } from '../../scripts/network-service';
 
 const JoinLobby = () => {
     const history = useHistory();
+    const connection = useContext(ConnectionContext);
     const [state, dispatch] = useContext(ServerContext);
     const currentUser = userSelector(state) || { name: '' };
     const defaultState = { username: currentUser.name || '', lobbyId: state.lobbyId };
@@ -21,9 +23,9 @@ const JoinLobby = () => {
     //Get the current lobbies once a service connection has been made
     useEffect(() => {
         if (state.webSocketConnectionAlive) {
-            getLobbies(state.webSocketConnection);
+            getLobbies(connection.current);
         }
-    }, [state.webSocketConnection, state.webSocketConnectionAlive])
+    }, [connection.current, state.webSocketConnectionAlive])
 
     //Stash username in session storage once set
     useEffect(() => {
@@ -59,7 +61,7 @@ const JoinLobby = () => {
             name: username
         }));
 
-        joinLobby(state.webSocketConnection, {
+        joinLobby(connection.current, {
             lobbyId,
             userId: state.userId
         });

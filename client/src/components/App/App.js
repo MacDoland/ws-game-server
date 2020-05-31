@@ -6,6 +6,7 @@ import {
   Route
 } from "react-router-dom";
 import { v1 as uuidv1 } from 'uuid';
+import { ConnectionContext } from '../../context/connection-context';
 import { ServerContext } from '../../context/server-context';
 import { newConnection, connectionActive, updateUser } from '../../actions';
 import { useHistory } from "react-router-dom";
@@ -19,44 +20,48 @@ import JoinLobby from '../JoinLobby';
 import Lobby from '../Lobby';
 import './App.scss';
 
-
 import { connect, processMessage, ping } from '../../scripts/network-service';
 
 function App() {
   const [state, dispatch] = useContext(ServerContext);
+  const connection = useContext(ConnectionContext);
   const history = useHistory();
   let timeoutRef = useRef({});
 
   useEffect(() => {
-    connectToServerEffect(dispatch, history);
+    connection.current = connectToServerEffect(dispatch, history);
   }, []);
-
-  useEffect(() => {
-
-  }, [state.webSocketConnection, state.webSocketConnectionAlive])
 
   useEffect(() => {
     clearTimeout(timeoutRef.current);
 
-    if (state.webSocketConnection
+
+    if (connection.current
       && state.webSocketConnectionAlive) {
-      console.log('sending pong');
-      state.webSocketConnection.send(JSON.stringify({
-        type: 'PONG'
-      }));
+      try {
+        console.log('sending pong');
+        connection.current.send(JSON.stringify({
+          type: 'PONG'
+        }));
+      } catch (e) {
+        connection.current.close();
+        dispatch(connectionActive({
+          webSocketConnectionAlive: false
+        }));
+      }
     }
 
     timeoutRef.current = setTimeout(() => {
       console.log("connection closed");
-      if (state.webSocketConnection) {
-        state.webSocketConnection.close();
+      if (connection.current) {
+        connection.current.close();
         dispatch(connectionActive({
           webSocketConnectionAlive: false
         }));
       }
     }, 40000);
   }, [
-    state.webSocketConnection,
+    connection.current,
     state.webSocketConnectionAlive,
     state.lastPingTime
   ])

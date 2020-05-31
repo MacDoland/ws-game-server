@@ -8,9 +8,9 @@ import {
 
 export const connect = (url, onOpen, onMessage, onClose) => {
     let connection = new WebSocket(url);
-    connection.onopen = onOpen;
-    connection.onmessage = onMessage;
-    connection.onclose = onClose;
+    // connection.onopen = onOpen;
+    // connection.onmessage = onMessage;
+    // connection.onclose = onClose;
     return connection;
 };
 

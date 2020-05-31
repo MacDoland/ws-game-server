@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useHistory } from "react-router-dom";
 
+import { ConnectionContext } from '../../context/connection-context';
 import { ServerContext } from '../../context/server-context';
 import { userSelector } from '../../selectors';
 import config from '../../config/app-config';
@@ -15,17 +16,18 @@ import './HostLobby.scss';
 
 const HostLobby = () => {
     const history = useHistory();
+    const connection = useContext(ConnectionContext);
     const [state] = useContext(ServerContext);
     const currentUser = userSelector(state) || { name: '' };
     const defaultState = { username: currentUser.name || '', lobbyName: '', lobbyCreated: false, lobbyId: state.lobbyId };
     const [{ username, lobbyName, lobbyCreated: shouldSubmitLobby }, setState] = useState(defaultState);
 
     useEffect(() => {
-        createLobbyEffect(state.webSocketConnectionAlive, shouldSubmitLobby, state.webSocketConnection, lobbyName);
-        if (shouldSubmitLobby) {
+        if (shouldSubmitLobby && state.webSocketConnectionAlive) {
+            createLobbyEffect(connection.current, lobbyName);
             history.push('/lobby');
         }
-    }, [lobbyName, state.webSocketConnection, state.webSocketConnectionAlive, shouldSubmitLobby]);
+    }, [lobbyName, connection.current, state.webSocketConnectionAlive, shouldSubmitLobby]);
 
     //Stash username in session storage once set
     useEffect(() => {

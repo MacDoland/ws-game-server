@@ -3,13 +3,16 @@ import ReactDOM from 'react-dom';
 import './index.scss';
 import App from './components/App/App.js';
 import * as serviceWorker from './serviceWorker';
+import { ConnectionContextProvider } from './context/connection-context';
 import { ServerContextProvider } from './context/server-context';
 
 ReactDOM.render(
   <React.StrictMode>
-    <ServerContextProvider>
-      <App />
-    </ServerContextProvider>
+    <ConnectionContextProvider>
+      <ServerContextProvider>
+        <App />
+      </ServerContextProvider>
+    </ConnectionContextProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );

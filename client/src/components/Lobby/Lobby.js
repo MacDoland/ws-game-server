@@ -1,4 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
+import { ConnectionContext } from '../../context/connection-context';
 import { ServerContext } from '../../context/server-context';
 import { useHistory } from "react-router-dom";
 import { userSelector, currentLobbySelector, currentParticipantsSelector } from '../../selectors';
@@ -14,6 +15,7 @@ import './Lobby.scss';
 const Lobby = () => {
 
     const history = useHistory();
+    const connection = useContext(ConnectionContext);
     const [state] = useContext(ServerContext);
     const initialState = { currentMessage: '' };
     const [{ currentMessage }, setState] = useState(initialState);
@@ -30,14 +32,14 @@ const Lobby = () => {
 
     useEffect(() => {
         if (state.webSocketConnectionAlive) {
-            getLobbies(state.webSocketConnection);
+            getLobbies(connection.current);
         }
-    }, [state.webSocketConnection, state.webSocketConnectionAlive])
+    }, [connection.current, state.webSocketConnectionAlive])
 
     const onSendMessage = (event) => {
         event.preventDefault();
 
-        sendChatMessage(state.webSocketConnection, {
+        sendChatMessage(connection.current, {
             lobbyId: lobby.id,
             author: currentUser.name,
             content: currentMessage,
@@ -58,7 +60,7 @@ const Lobby = () => {
     const goBack = (event) => {
         event.preventDefault();
 
-        leaveLobby(state.webSocketConnection, {
+        leaveLobby(connection.current, {
             userId: state.userId
         });
 
