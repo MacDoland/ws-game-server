@@ -36,8 +36,7 @@ function App() {
     clearTimeout(timeoutRef.current);
 
 
-    if (connection.current
-      && state.webSocketConnectionAlive) {
+    if (connection.current && state.webSocketConnectionAlive) {
       try {
         console.log('sending pong');
         connection.current.send(JSON.stringify({
@@ -59,7 +58,7 @@ function App() {
           webSocketConnectionAlive: false
         }));
       }
-    }, 40000);
+    }, 15000);
   }, [
     connection.current,
     state.webSocketConnectionAlive,

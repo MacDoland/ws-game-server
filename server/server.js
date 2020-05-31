@@ -72,7 +72,7 @@ const interval = setInterval(function ping() {
       type: 'PING'
     })
   });
-}, 30000);
+}, 10000);
 
 webSocketServer.on("close", function close() {
   clearInterval(interval);
