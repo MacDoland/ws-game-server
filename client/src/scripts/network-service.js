@@ -6,8 +6,12 @@ import {
     joinLobby as joinLobbyClient
 } from '../actions';
 
-export const connect = (url) => {
-    return new WebSocket(url);
+export const connect = (url, onOpen, onMessage, onClose) => {
+    let connection = new WebSocket(url);
+    connection.onopen = onOpen;
+    connection.onmessage = onMessage;
+    connection.onclose = onClose;
+    return connection;
 };
 
 export const processMessage = (event, dispatch, history) => {
@@ -22,9 +26,6 @@ export const processMessage = (event, dispatch, history) => {
     switch (type) {
         case serverActions.lobbyCreated:
             console.log('Server Communication: Lobby Created', payload);
-            //Don't like this, can we move history to somewhere else?
-            //history.push('/lobby');
-            console.log('history', history);
             break;
         case serverActions.getLobbies:
             console.log('Server Communication: GetLobbies', payload);

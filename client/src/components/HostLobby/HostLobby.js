@@ -1,6 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useHistory } from "react-router-dom";
-import { v1 as uuidv1 } from 'uuid';
 
 import { ServerContext } from '../../context/server-context';
 import { userSelector } from '../../selectors';
@@ -10,7 +9,7 @@ import Button from '../Button';
 import { Form, Field, TextInput } from '../Form';
 import Panel from '../Panel';
 
-import { createLobby } from '../../scripts/network-service';
+import { createLobbyEffect, storeUsernameEffect } from '../../effects';
 
 import './HostLobby.scss';
 
@@ -22,22 +21,15 @@ const HostLobby = () => {
     const [{ username, lobbyName, lobbyCreated: shouldSubmitLobby }, setState] = useState(defaultState);
 
     useEffect(() => {
-        if (state.webSocketConnectionAlive && shouldSubmitLobby) {
-            createLobby(state.webSocketConnection, {
-                lobbyId: uuidv1(),
-                lobbyName
-            });
-
-            //Assume creating the lobby will be okay and move on to the lobby view
-            history.push('/lobby')
+        createLobbyEffect(state.webSocketConnectionAlive, shouldSubmitLobby, state.webSocketConnection, lobbyName);
+        if (shouldSubmitLobby) {
+            history.push('/lobby');
         }
-    }, [history, lobbyName, state.webSocketConnection, state.webSocketConnectionAlive, shouldSubmitLobby])
+    }, [lobbyName, state.webSocketConnection, state.webSocketConnectionAlive, shouldSubmitLobby]);
 
     //Stash username in session storage once set
     useEffect(() => {
-        if (username && username !== '') {
-            sessionStorage.setItem(config.usernameSessionKey, username);
-        }
+        storeUsernameEffect(username);
     }, [username])
 
     const goBack = (event) => {

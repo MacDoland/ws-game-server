@@ -1,5 +1,8 @@
 const cloneDeep = require('lodash/cloneDeep');
-const commands = require("../modules/commands.js");
+const commands = require('../modules/commands.js');
+const config = require('../config');
+const logger = require('../logger');
+const sendLogger = logger(config.consoleColours.cyan);
 
 const addChatMessage = (state, lobbyId, author, createdDate, content) => {
   const newState = cloneDeep(state);
@@ -42,7 +45,7 @@ const createLobby = (state, lobbyId, lobbyName, userId) => {
     hostId: userId,
     id: lobbyId,
     name: lobbyName,
-    participants: [],
+    participants: [userId],
     messages: [],
   };
 
@@ -89,7 +92,7 @@ const removeUserFromAllLobbies = (state, userId) => {
 
 const send = (client, message) => {
   const stringifiedMessage = JSON.stringify(message);
-  console.log('Sending message to client: ', client.clientId, stringifiedMessage);
+  sendLogger.log('Sending message:', ' client:', client.clientId, stringifiedMessage);
   client.send(stringifiedMessage);
 }
 

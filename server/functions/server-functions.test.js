@@ -152,7 +152,7 @@ describe('createLobby', () => {
             hostId: userId,
             id: lobbyId,
             name: lobbyName,
-            participants: [],
+            participants: [userId],
             messages: [],
         };
 

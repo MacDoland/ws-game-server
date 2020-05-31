@@ -2,6 +2,11 @@ const WebSocket = require("ws");
 const uuid = require("uuid");
 const commands = require("./modules/commands.js");
 const url = require("url");
+const config = require('./config');
+const logger = require('./logger');
+const recieveLogger = logger(config.consoleColours.green);
+const connectionLogger = logger(config.consoleColours.red);
+const sendLogger = logger(config.consoleColours.cyan);
 
 const { addChatMessage, broadcastLobbies, createLobby, joinLobby, removeUserFromAllLobbies, send } = require("./functions/server-functions");
 
@@ -12,12 +17,20 @@ let state = { lobbies: [] }
 const parseMessage = (message, webSocket) => {
   message = JSON.parse(message);
 
-  console.log(`Received message: action: ${message.type}, payload: ${JSON.stringify(message.payload)} `);
+  recieveLogger.log('Received message:', `action: ${message.type}, payload: ${JSON.stringify(message.payload)}`);
+
   switch (message.type) {
     case commands.createLobby:
-      state = createLobby(state, message.payload.lobbyId, message.payload.lobbyName, message.payload.userId);
-      console.log('lobbies', state.lobbies);
+      const lobbyId = uuid.v1();
+      state = removeUserFromAllLobbies(state, message.payload.userId);
+      state = createLobby(state, lobbyId, message.payload.lobbyName, message.payload.userId);
       broadcastLobbies(webSocketServer, state.lobbies);
+      send(webSocket, {
+        type: commands.lobbyCreated,
+        payload: {
+          lobbyId
+        }
+      });
       break;
     case commands.getLobbies:
       send(webSocket,
@@ -43,7 +56,7 @@ const parseMessage = (message, webSocket) => {
       webSocket.isAlive = true;
       break;
     default:
-      console.log(`Received message => ${message}`);
+      recieveLogger.log('Received message => ',message);
       break;
   }
 };
@@ -55,9 +68,9 @@ const interval = setInterval(function ping() {
     }
 
     webSocket.isAlive = false;
-    webSocket.send(JSON.stringify({
+    send(webSocket, {
       type: 'PING'
-    }));
+    })
   });
 }, 30000);
 
@@ -67,10 +80,10 @@ webSocketServer.on("close", function close() {
 
 webSocketServer.on("connection", (webSocket, request) => {
   const query = url.parse(request.url, true).query;
-  console.log("new connection", query.userId);
+  connectionLogger.log('new connection', query.userId);
   webSocket.isAlive = true;
   webSocket.clientId = query.userId || uuid.v1();
   webSocket.on("message", (message) => parseMessage(message, webSocket));
 });
 
-console.log("Server listening on port:", port);
+connectionLogger.log('Server listening on port:', port);
